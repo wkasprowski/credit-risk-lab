@@ -1,0 +1,18 @@
+{
+  "seed": 42,
+  "report_date": "2026-09-30",
+  "portfolio_loans": 6000,
+  "pd_train_rows": 12000,
+  "pd_calibration_rows": 4000,
+  "pd_test_rows": 4000,
+  "lgd_train_rows": 2400,
+  "lgd_test_rows": 900,
+  "sicr_lifetime_ratio": 2.0,
+  "sicr_lifetime_absolute_increase": 0.03,
+  "ccf": 0.5,
+  "scenarios": [
+    {"name": "optimistic", "weight": 0.2, "pd_odds_multiplier": 0.8, "lgd_multiplier": 0.9},
+    {"name": "base", "weight": 0.6, "pd_odds_multiplier": 1.0, "lgd_multiplier": 1.0},
+    {"name": "adverse", "weight": 0.2, "pd_odds_multiplier": 1.8, "lgd_multiplier": 1.2}
+  ]
+}

@@ -1,0 +1,37 @@
+// Add each measure separately through Modeling > New measure.
+// The FactECL query must have precisely this name.
+// One reporting date must be selected in the snapshot cards.
+
+EAD PLN = SUM(FactECL[ead])
+
+Drawn Balance PLN = SUM(FactECL[balance])
+
+ECL Weighted PLN = SUM(FactECL[ecl_weighted])
+
+ECL Base PLN = SUM(FactECL[ecl_base])
+
+ECL Adverse PLN = SUM(FactECL[ecl_adverse])
+
+ECL Optimistic PLN = SUM(FactECL[ecl_optimistic])
+
+Coverage Ratio = DIVIDE([ECL Weighted PLN], [EAD PLN])
+
+Loan Count = DISTINCTCOUNT(FactECL[loan_id])
+
+PD Performing Weighted =
+VAR Performing = FILTER(FactECL, FactECL[stage] < 3)
+RETURN DIVIDE(
+    SUMX(Performing, FactECL[pd_12m] * FactECL[ead]),
+    SUMX(Performing, FactECL[ead])
+)
+
+Adverse Uplift = DIVIDE([ECL Adverse PLN], [ECL Base PLN]) - 1
+
+// Calendar is created as a calculated table; do not create it as a measure.
+Calendar =
+CALENDAR(MIN(FactECL[report_date]), MAX(FactECL[report_date]))
+
+// For a trend on the same page as the single-date slicer:
+// use a Calendar slicer, REMOVE its interaction with the trend visual,
+// and create the 1:* Calendar[Date] -> FactECL[report_date] relationship.
+// The trend must still receive product/stage filters.

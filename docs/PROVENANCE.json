@@ -1,0 +1,14 @@
+{
+  "source_archive": "Credit_Risk_Lab.zip",
+  "source_archive_sha256": "20b6c05ab44e273d030b8dea14d4cada5236544647301a2168fbb11b70f121c0",
+  "scope": "Public portfolio packaging of the selected existing project; no commercial affiliation.",
+  "original_core_sha256": {
+    "src/models.py": "c0957cce7e768bf8b3433d6308c35e1fe473a828e5bcafe5283f3ce9826c348c",
+    "src/ecl.py": "83debebcb206dcbd2ac7939f0cc779aa458e82e01f1070a40972c0754ef06e88",
+    "src/synthetic.py": "035791ffb81f3b8d78048de503a8cae079c483c5379814e957117ee2841e47e0",
+    "src/database.py": "4c62cf8cedf16717e3d21dddf261e3a15f7f4a7d972f932326dc32f730f72d87",
+    "src/io_utils.py": "d44bdd163a4b7e1c658c4e6c54fcbd101acee0704562665e59f6bdcc4990e59b",
+    "sql/01_curated_views.sql": "09e70a9ea49080a5bc99d81463c198b1e0845b2a74a10e75ea71612ae907ad2a",
+    "sql/02_analysis.sql": "ff2e44ebddda69fd20afba0cd69038d96001af29dbeaf69970b4c94b529c7f9d"
+  }
+}

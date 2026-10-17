@@ -1,0 +1,31 @@
+test_discounted_net_recovery_hand_example (test_risk.FinancialIdentities.test_discounted_net_recovery_hand_example) ... ok
+test_invalid_pd_fails (test_risk.FinancialIdentities.test_invalid_pd_fails) ... ok
+test_invalid_scenario_weights_fail (test_risk.FinancialIdentities.test_invalid_scenario_weights_fail) ... ok
+test_monthly_marginal_probabilities_sum_to_annual_pd (test_risk.FinancialIdentities.test_monthly_marginal_probabilities_sum_to_annual_pd) ... ok
+test_null_ecl_input_fails (test_risk.FinancialIdentities.test_null_ecl_input_fails) ... ok
+test_positive_interest_last_installment_balance (test_risk.FinancialIdentities.test_positive_interest_last_installment_balance) ... ok
+test_quantitative_sicr_uses_lifetime_risk (test_risk.FinancialIdentities.test_quantitative_sicr_uses_lifetime_risk) ... ok
+test_short_maturity_limits_stage1_to_remaining_life (test_risk.FinancialIdentities.test_short_maturity_limits_stage1_to_remaining_life) ... ok
+test_stage1_constant_exposure_equals_pd_lgd_ead (test_risk.FinancialIdentities.test_stage1_constant_exposure_equals_pd_lgd_ead) ... ok
+test_stage2_covers_defaults_after_twelve_months (test_risk.FinancialIdentities.test_stage2_covers_defaults_after_twelve_months) ... ok
+test_stage3_excludes_undrawn_and_does_not_rediscout_workout_lgd (test_risk.FinancialIdentities.test_stage3_excludes_undrawn_and_does_not_rediscout_workout_lgd) ... ok
+test_thirty_dpd_is_not_the_over_thirty_backstop (test_risk.FinancialIdentities.test_thirty_dpd_is_not_the_over_thirty_backstop) ... ok
+test_two_year_survival_probability (test_risk.FinancialIdentities.test_two_year_survival_probability) ... ok
+test_unlikeliness_to_pay_defaults_without_arrears (test_risk.FinancialIdentities.test_unlikeliness_to_pay_defaults_without_arrears) ... ok
+test_zero_interest_equal_principal_amortisation (test_risk.FinancialIdentities.test_zero_interest_equal_principal_amortisation) ... ok
+test_zero_pd_produces_zero_expected_loss (test_risk.FinancialIdentities.test_zero_pd_produces_zero_expected_loss) ... ok
+test_duplicate_borrower_is_rejected (test_risk.PipelineEvidence.test_duplicate_borrower_is_rejected) ... ok
+test_future_outcome_is_rejected (test_risk.PipelineEvidence.test_future_outcome_is_rejected) ... ok
+test_loan_level_audit_reconciles_to_latest_fact (test_risk.PipelineEvidence.test_loan_level_audit_reconciles_to_latest_fact) ... ok
+test_population_is_unique_and_complete_each_month (test_risk.PipelineEvidence.test_population_is_unique_and_complete_each_month) ... ok
+test_purged_temporal_split_and_feature_whitelist (test_risk.PipelineEvidence.test_purged_temporal_split_and_feature_whitelist) ... ok
+test_row_reconciliation (test_risk.PipelineEvidence.test_row_reconciliation) ... ok
+test_scenario_ordering_and_convex_combination (test_risk.PipelineEvidence.test_scenario_ordering_and_convex_combination) ... ok
+test_six_month_delinquency_is_reconstructed_from_observed_history (test_risk.PipelineEvidence.test_six_month_delinquency_is_reconstructed_from_observed_history) ... ok
+test_sql_and_csv_totals_reconcile (test_risk.PipelineEvidence.test_sql_and_csv_totals_reconcile) ... ok
+test_stage3_probabilities_and_exposure (test_risk.PipelineEvidence.test_stage3_probabilities_and_exposure) ... ok
+
+----------------------------------------------------------------------
+Ran 26 tests in 0.780s
+
+OK

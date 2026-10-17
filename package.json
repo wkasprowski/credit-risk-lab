@@ -1,0 +1,12 @@
+{
+  "name": "credit-risk-lab-checks",
+  "private": true,
+  "version": "1.0.0",
+  "description": "Optional browser verification for a Python and SQL portfolio project",
+  "engines": {"node": ">=18"},
+  "scripts": {
+    "test:dashboard": "node tests/check_dashboard.cjs",
+    "test:browser": "node tests/check_dashboard_browser.cjs"
+  },
+  "devDependencies": {"playwright": "1.62.1"}
+}

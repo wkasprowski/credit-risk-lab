@@ -1,0 +1,140 @@
+{
+  "totals": {
+    "report_date": "2026-09-30",
+    "portfolio_loans": 6000,
+    "ead_pln": 240431995.01346758,
+    "drawn_balance_pln": 237255726.58981213,
+    "ecl_weighted_pln": 35710382.24321605,
+    "coverage_ratio": 0.14852591578427723,
+    "ecl_base_pln": 33457505.155268215,
+    "ecl_adverse_pln": 50767593.01376754,
+    "ecl_optimistic_pln": 27411802.73650811,
+    "stage_counts": {
+      "1": 3385,
+      "2": 2363,
+      "3": 252
+    }
+  },
+  "pd": {
+    "baseline_3_features": {
+      "roc_auc": 0.7249951708973134,
+      "gini": 0.4499903417946267,
+      "brier": 0.06540476810448481,
+      "log_loss": 0.2440202380213822,
+      "mean_pd": 0.0689512808756159,
+      "observed_default_rate": 0.07675,
+      "rows": 4000
+    },
+    "full_uncalibrated": {
+      "roc_auc": 0.7425854530668551,
+      "gini": 0.48517090613371017,
+      "brier": 0.06402373362643554,
+      "log_loss": 0.2382832105939566,
+      "mean_pd": 0.06877371950274096,
+      "observed_default_rate": 0.07675,
+      "rows": 4000
+    },
+    "full_calibrated": {
+      "roc_auc": 0.7425854530668551,
+      "gini": 0.48517090613371017,
+      "brier": 0.06396098998129329,
+      "log_loss": 0.23775614539197648,
+      "mean_pd": 0.0739383905128491,
+      "observed_default_rate": 0.07675,
+      "rows": 4000
+    },
+    "score_psi_train_vs_test": 0.0037767928817883456,
+    "split": {
+      "train": {
+        "rows": 12000,
+        "observation_start": "2018-01-01",
+        "observation_end": "2020-12-31",
+        "labels_mature_by": "2021-12-31"
+      },
+      "calibration": {
+        "rows": 4000,
+        "observation_start": "2022-01-01",
+        "observation_end": "2022-12-31",
+        "labels_mature_by": "2023-12-31"
+      },
+      "test": {
+        "rows": 4000,
+        "observation_start": "2024-01-01",
+        "observation_end": "2024-12-31",
+        "labels_mature_by": "2025-12-31"
+      }
+    },
+    "selection_policy": "Full calibrated logistic model specified before opening out-of-time test. No test-set tuning.",
+    "auc_bootstrap_95ci": [
+      0.7090152618136988,
+      0.7646511289185147
+    ],
+    "score_psi_train_vs_current_performing": 0.41669362155345874
+  },
+  "lgd": {
+    "mae": 0.05483993728395957,
+    "constant_mean_baseline_mae": 0.1408252005905823,
+    "mean_predicted": 0.7106929447582032,
+    "mean_observed": 0.7091331018913627,
+    "train_rows": 2400,
+    "test_rows": 900,
+    "target_clipped_rows": 0,
+    "train_resolved_by": "2021-12-31",
+    "test_default_start": "2022-01-01",
+    "all_resolved_by": "2024-12-31"
+  },
+  "data_quality": {
+    "raw_snapshot_rows": 72012,
+    "duplicates_removed": 8,
+    "quarantined_rows": 4,
+    "accepted_rows": 72000,
+    "missing_income_borrowers": 120,
+    "reject_reasons": {
+      "invalid_maturity": 1,
+      "missing_balance": 1,
+      "missing_contract": 1,
+      "negative_exposure": 1
+    }
+  },
+  "reconciliation": {
+    "sql_ecl_pln": 35710382.24321606,
+    "python_ecl_pln": 35710382.24321605,
+    "audit_loans": 6,
+    "sql_python_agree": true,
+    "loan_audit_agrees": true
+  },
+  "config": {
+    "seed": 42,
+    "report_date": "2026-09-30",
+    "portfolio_loans": 6000,
+    "pd_train_rows": 12000,
+    "pd_calibration_rows": 4000,
+    "pd_test_rows": 4000,
+    "lgd_train_rows": 2400,
+    "lgd_test_rows": 900,
+    "sicr_lifetime_ratio": 2.0,
+    "sicr_lifetime_absolute_increase": 0.03,
+    "ccf": 0.5,
+    "scenarios": [
+      {
+        "name": "optimistic",
+        "weight": 0.2,
+        "pd_odds_multiplier": 0.8,
+        "lgd_multiplier": 0.9
+      },
+      {
+        "name": "base",
+        "weight": 0.6,
+        "pd_odds_multiplier": 1.0,
+        "lgd_multiplier": 1.0
+      },
+      {
+        "name": "adverse",
+        "weight": 0.2,
+        "pd_odds_multiplier": 1.8,
+        "lgd_multiplier": 1.2
+      }
+    ]
+  },
+  "data_type": "SYNTHETIC"
+}

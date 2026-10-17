@@ -1,0 +1,61 @@
+{
+  "verified_at_utc": "2026-10-17T17:45:01.223159+00:00",
+  "python": "3.12.14",
+  "platform": "Linux",
+  "architecture": "x86_64",
+  "isolated_python_environment": true,
+  "pip_check": "No broken requirements found.",
+  "python_tests": 26,
+  "database_integrity": "ok",
+  "fact_rows": 72000,
+  "report_dates": 12,
+  "contracts": 6000,
+  "latest_ead_sql": 240431995.01346758,
+  "latest_ecl_sql": 35710382.24321606,
+  "latest_ecl_python": 35710382.24321605,
+  "pd_roc_auc": 0.7425854530668551,
+  "pd_brier": 0.06396098998129329,
+  "lgd_mae": 0.05483993728395957,
+  "generator_deterministic": true,
+  "raw_csv_sha256": {
+    "borrowers.csv": "0f6086ee7ec9ccbb55f9a9b0dba78f7c99fde0c7c45bf5f9041d4e49d5d4b451",
+    "historical_pd.csv": "24e237028dea12c0d6777c08d97d091b80fdb24397f60b8b4c7bd5b4af293e99",
+    "loans.csv": "14b7f8ff47f6481f01943f81a9a82c336691bcc4569c21c3e72de3cc818f6ee7",
+    "recoveries.csv": "c6cbf9159323a8631d12d9d8449e6814a8a07c360d53c99ff5b11442aff0bc0f",
+    "snapshots.csv": "658f57b308ec0dfc8d113009ba3b8b9b9e01bd05c0106b8c2e5f318c2dbf615b",
+    "workouts.csv": "a5fbcae7691438824537c779e6dfbac97e8055c19c003849da4f84aa529e99ca"
+  },
+  "core_source_unchanged": true,
+  "core_source_sha256": {
+    "src/models.py": "c0957cce7e768bf8b3433d6308c35e1fe473a828e5bcafe5283f3ce9826c348c",
+    "src/ecl.py": "83debebcb206dcbd2ac7939f0cc779aa458e82e01f1070a40972c0754ef06e88",
+    "src/synthetic.py": "035791ffb81f3b8d78048de503a8cae079c483c5379814e957117ee2841e47e0",
+    "src/database.py": "4c62cf8cedf16717e3d21dddf261e3a15f7f4a7d972f932326dc32f730f72d87",
+    "src/io_utils.py": "d44bdd163a4b7e1c658c4e6c54fcbd101acee0704562665e59f6bdcc4990e59b",
+    "sql/01_curated_views.sql": "09e70a9ea49080a5bc99d81463c198b1e0845b2a74a10e75ea71612ae907ad2a",
+    "sql/02_analysis.sql": "ff2e44ebddda69fd20afba0cd69038d96001af29dbeaf69970b4c94b529c7f9d"
+  },
+  "dashboard_logic": {
+    "method": "Node VM with minimal DOM shim; no browser layout test",
+    "independent_sql_filter_cases": 768,
+    "kpi_totals": "pass",
+    "top10_rankings": "pass",
+    "csv_export_contents": "pass"
+  },
+  "browser": {
+    "browser": "153.0.8010.0",
+    "loading": "file:// with no server",
+    "independent_sql_filter_cases": 768,
+    "kpi_totals": "pass",
+    "top10_rankings": "pass",
+    "csv_download": "pass",
+    "javascript_errors": 0,
+    "external_network_requests": 0,
+    "desktop_viewport": "1440x1050",
+    "mobile_viewport": "390x844",
+    "horizontal_overflow": false
+  },
+  "power_bi_desktop_tested": false,
+  "windows_execution_tested": false,
+  "synthetic_data_only": true
+}
