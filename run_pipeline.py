@@ -111,7 +111,7 @@ def run(root, config_path=None):
         conn.commit()
         conn.close()
         os.replace(output / ".credit_risk.build.sqlite",output / "credit_risk.sqlite")
-        print("5/6 Offline dashboard, charts and recruiter report",flush=True)
+        print("5/6 Offline dashboard, charts and PDF summary",flush=True)
         from src.reporting import create_reports
         create_reports(root,fact,latest,summary)
         print("6/6 Reproducibility manifest",flush=True)

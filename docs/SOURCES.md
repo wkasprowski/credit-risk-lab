@@ -8,6 +8,4 @@ The implementation uses synthetic data rather than a downloaded borrower dataset
 - [Python 3.12 on Windows](https://docs.python.org/3.12/using/windows.html): launcher, installation and environments.
 - [Power BI Desktop](https://learn.microsoft.com/en-us/power-bi/fundamentals/desktop-get-the-desktop) and [Csv.Document](https://learn.microsoft.com/en-us/powerquery-m/csv-document): manual report creation and CSV import.
 - [Playwright browser installation](https://playwright.dev/docs/browsers): optional browser testing.
-- [GitHub — adding locally hosted code](https://docs.github.com/en/migrations/importing-source-code/using-the-command-line-to-import-source-code/adding-locally-hosted-code-to-github): manual publication commands.
-
-Original implementation and documentation were developed with AI assistance. This cleaned release preserves the original numerical modelling code. The release validation report documents executed checks and limitations.
+The implementation and documentation were developed with AI-assisted tooling. Numerical results in the repository are generated from synthetic data and can be reproduced with the included scripts. The validation report records the tested environment, checks and known limitations.

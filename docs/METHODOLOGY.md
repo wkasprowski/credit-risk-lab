@@ -109,4 +109,4 @@ The baseline CCF sensitivity raises weighted ECL by about 306,116.14 PLN. All re
 
 ## Baseline verification policy
 
-The verification script deliberately freezes the default dataset, financial totals and preserved source hashes. Intentional model or generator changes require a fresh review and explicit baseline/provenance update; they should not be presented as the unchanged validated release.
+The verification script freezes the default dataset, financial totals and reference source hashes. Intentional model or generator changes require a fresh review and an updated baseline.

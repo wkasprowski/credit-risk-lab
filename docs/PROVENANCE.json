@@ -1,7 +1,5 @@
 {
-  "source_archive": "Credit_Risk_Lab.zip",
-  "source_archive_sha256": "20b6c05ab44e273d030b8dea14d4cada5236544647301a2168fbb11b70f121c0",
-  "scope": "Public portfolio packaging of the selected existing project; no commercial affiliation.",
+  "scope": "Reference hashes for the validated numerical and SQL baseline.",
   "original_core_sha256": {
     "src/models.py": "c0957cce7e768bf8b3433d6308c35e1fe473a828e5bcafe5283f3ce9826c348c",
     "src/ecl.py": "83debebcb206dcbd2ac7939f0cc779aa458e82e01f1070a40972c0754ef06e88",

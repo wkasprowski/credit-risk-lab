@@ -96,7 +96,7 @@ def register_fonts():
 
 def pdf_report(output, latest, summary):
     register_fonts()
-    path = output / "recruiter_brief.pdf"
+    path = output / "credit_risk_summary.pdf"
     c = canvas.Canvas(str(path),pagesize=(595.28,841.89))
     c.setTitle("Credit Risk Lab - projekt portfolio do analizy ryzyka kredytowego")
     c.setAuthor("Credit Risk Lab contributors")
