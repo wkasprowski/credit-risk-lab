@@ -1,0 +1,891 @@
+diff --git a/README.md b/README.md
+index 74363af..c219d95 100644
+--- a/README.md
++++ b/README.md
+@@ -1,219 +1,117 @@
+ # Credit Risk Lab
+ 
+-**A reproducible Python and SQL portfolio project for retail credit-risk analytics.**
++An educational project that uses **Python, SQL and SQLite** to explore a simplified credit-risk workflow on synthetic data.
+ 
+-[Polska wersja](README_PL.md) · [Methodology](docs/METHODOLOGY.md) · [Verification](reports/VALIDATION_REPORT.md) · [Power BI build guide](docs/POWER_BI_BUILD_GUIDE.md)
++[Polska wersja](README_PL.md) · [Methodology](docs/METHODOLOGY.md) · [Data dictionary](docs/DATA_DICTIONARY.md) · [Sources](docs/SOURCES.md)
+ 
+-Credit Risk Lab follows a synthetic loan portfolio from source-system extracts to a SQLite analytical layer, PD/LGD models, scenario-weighted expected credit loss, and an interactive **HTML dashboard**. It demonstrates SQL analysis, data quality, leakage controls, probability modelling and auditable calculations.
++The project generates a fictional retail-loan portfolio, prepares an analytical database, estimates PD and LGD, calculates scenario-weighted ECL and presents the results in an offline HTML dashboard.
+ 
+-**All records are synthetic. This is an educational demonstrator, not a production banking model, an approved IFRS 9 implementation or an engagement for any financial institution.**
++> All records are synthetic. This repository is not a production banking model, a complete IFRS 9 implementation or work performed for a financial institution.
+ 
+-![HTML dashboard overview](screenshots/dashboard-overview.png)
++![Dashboard overview](screenshots/dashboard-overview.png)
+ 
+-## Business problem
++## What the project contains
+ 
+-Which products and risk stages contribute most to expected credit loss? How does the loss estimate change under different assumptions? Can every reported total be traced back to source records and calculation components?
++- 6,000 fictional contracts observed across 12 month-end snapshots;
++- 72,000 contract-month records after deduplication and quality checks;
++- SQL views and queries for cleaning, joining and analysing the portfolio;
++- Python modules for synthetic-data generation, PD/LGD modelling and ECL calculation;
++- an offline HTML dashboard with date, product, stage and scenario filters;
++- automated tests and reconciliation of selected SQL and Python totals;
++- example Power Query M and DAX files for a manual Power BI build.
+ 
+-The project answers those questions for **6,000 fictional contracts across 12 month-end snapshots: 72,000 contract-month rows**. It does not make real lending decisions.
++## Main workflow
+ 
+-## Technology and current scope
++1. Generate deterministic synthetic source files.
++2. Load them into SQLite and validate source keys.
++3. Deduplicate monthly snapshots and quarantine invalid records.
++4. Fit simplified PD and LGD models on separated time periods.
++5. Assign risk stages and calculate monthly, discounted ECL under three scenarios.
++6. Export analytical results and rebuild the HTML dashboard.
+ 
+-| Component | Implementation |
+-|---|---|
+-| Data processing | Python 3.12, pandas, NumPy |
+-| Analytical database | SQLite, SQL CTEs, JOINs, ROW_NUMBER and LAG |
+-| PD and LGD | scikit-learn, SciPy; logistic regression, Platt scaling, Ridge regression |
+-| Reporting | Self-contained English HTML, CSS and JavaScript; Matplotlib charts; generated Polish PDF summary |
+-| Verification | Python unittest; independent SQL references; Node logic checks; optional Playwright browser checks |
+-| Power BI | CSV import in Power Query M, DAX definitions and a manual build guide |
++More detail about the assumptions is available in [docs/METHODOLOGY.md](docs/METHODOLOGY.md).
+ 
+-**There is no completed or tested Power BI PBIX report.** The screenshots show the HTML dashboard. R, SAS and VBA are not used.
++## Technology
+ 
+-## View the dashboard without installing anything
++- Python 3.12
++- pandas, NumPy, SciPy and scikit-learn
++- SQLite and SQL
++- HTML, CSS and JavaScript
++- unittest; optional Node.js and Playwright dashboard checks
+ 
+-1. Download or clone the repository.
+-2. Open `dashboard/index.html` in a browser.
+-3. Select a reporting date, product, stage and scenario.
++## Run on Windows
+ 
+-The baseline preview includes its own data and needs **no server, account, internet connection or Python installation**. It contains aggregates and the candidate top-loss contracts needed by its filters, not a copy of the full analytical database. Running the pipeline rebuilds this HTML file from the generated data.
++Open PowerShell in the repository directory and run:
+ 
+-If local-file access is restricted by your browser configuration, an optional server is:
+-
+-~~~powershell
+-py -3.12 -m http.server 8000 --bind 127.0.0.1
+-~~~
+-
+-Then open [http://127.0.0.1:8000/dashboard/index.html](http://127.0.0.1:8000/dashboard/index.html).
+-
+-## Data structure
+-
+-| Source or result | Grain and key | Role |
+-|---|---|---|
+-| borrowers | One fictional customer; customer_id | Income and employment attributes |
+-| loans | One contract; loan_id | Product, EIR, collateral and origination PD |
+-| snapshots | Contract/date/ingestion version | Balances, arrears and available limits |
+-| historical_pd | One customer/observation | As-of features and subsequent 12-month outcomes |
+-| workouts | One resolved default case | Default exposure and default-time features |
+-| recoveries | Case/month after default | Recovery cash flows and workout costs |
+-| fact_ecl | Contract/reporting month | Stage, PD, LGD, EAD and four ECL outputs |
+-
+-The small, coherent files in `data/sample/` are for inspection. **They are not the training dataset.** The full source files and database are regenerated, not committed. See [the data dictionary](docs/DATA_DICTIONARY.md).
+-
+-## PD, LGD, EAD and ECL
+-
+-| Term | Meaning in this project |
+-|---|---|
+-| PD | Probability of default during the next 12 months; extended to a lifetime curve using a constant-hazard approximation |
+-| LGD | Fraction of exposure lost given default, estimated from discounted recoveries net of workout costs |
+-| EAD | Exposure at default: projected amortising balance, or drawn card balance plus CCF times available limit |
+-| ECL | Expected credit loss across possible default months, discounted and weighted across scenarios |
+-
+-For a simple constant-exposure example without discounting, PD=5%, LGD=60% and EAD=10,000 PLN imply 300 PLN expected loss. The actual engine uses monthly survival, a future EAD schedule, discounting and scenario weights.
+-
+-Stage 1 covers defaults possible within up to 12 months. Stage 2 covers defaults over the remaining horizon after significant risk deterioration. Stage 3 uses a conditional LGD loss proxy for an identified default. These are educational approximations; see [methodology and limitations](docs/METHODOLOGY.md).
+-
+-## Processing flow
+-
+-1. Generate deterministic synthetic source extracts with `seed=42`.
+-2. Load raw SQLite tables; validate source keys before joins.
+-3. Deduplicate snapshot versions and quarantine invalid rows.
+-4. Fit PD on 2018–2020 observations; calibrate on 2022; evaluate on 2024.
+-5. Fit LGD on resolved 2017–2019 defaults; evaluate on later 2022 defaults.
+-6. Assign stages and compute monthly scenario-weighted ECL for each snapshot.
+-7. Reconcile SQL and Python totals, export audit components and build the HTML dashboard, charts and PDF.
+-
+-The sample-export and verification scripts operate on those outputs. No external customer dataset or service is required.
++```powershell
++py -3.12 -m venv .venv
++.\.venv\Scripts\python.exe -m pip install -r requirements.lock.txt
++.\.venv\Scripts\python.exe run_pipeline.py
++.\.venv\Scripts\python.exe -m unittest discover -s tests -v
++```
+ 
+-## SQL highlights
++The pipeline creates the full synthetic inputs and analytical outputs in ignored directories. Small example files remain in `data/sample/` so the structure can be inspected without running the pipeline.
+ 
+-| Script | What to inspect |
+-|---|---|
+-| `sql/01_curated_views.sql` | ROW_NUMBER deduplication; validation CASE; curated keys; joins; prior-DPD windows |
+-| `sql/02_analysis.sql` | Product/stage summaries; LAG migration matrix; high-loss contracts; weighted PD |
+-| `sql/03_validation.sql` | SQLite integrity, business-key uniqueness, latest-snapshot totals and loss bounds |
++To view the prepared dashboard without installing anything, open `dashboard/index.html` in a browser.
+ 
+-Example: inspect a single reporting date rather than summing twelve snapshots:
++## Example SQL analysis
+ 
+-~~~sql
+-SELECT product, stage, COUNT(*) AS contracts,
++```sql
++SELECT product,
++       stage,
++       COUNT(*) AS contracts,
+        ROUND(SUM(ead), 2) AS ead_pln,
+        ROUND(SUM(ecl_weighted), 2) AS ecl_pln
+ FROM fact_ecl
+ WHERE report_date = '2026-09-30'
+ GROUP BY product, stage
+ ORDER BY product, stage;
+-~~~
+-
+-## Data quality and leakage controls
+-
+-- Raw snapshot reconciliation: **72,012 input rows − 8 duplicates − 4 quarantined rows = 72,000 accepted rows**.
+-- Source keys are checked before JOINs; the curated contract/date key is unique.
+-- Missing balances are rejected rather than silently set to zero.
+-- Missing income is imputed using the **training median only**.
+-- Predictors are explicitly whitelisted; future outcome dates, recovery outcomes, cohort labels and customer identifiers are excluded from PD features.
+-- Customers do not cross PD train/calibration/test cohorts.
+-- Every earlier cohort's outcome window matures before the next cohort's first observation.
+-- PD target dates and completed outcome windows are checked; LGD workouts must be resolved by the as-of date.
+-- Loan-level audit components and SQL/Python totals are reconciled.
+-
+-## Install and reproduce on Windows
+-
+-Use **Python 3.12, 64-bit**. Commands below are for PowerShell opened in the directory containing `run_pipeline.py`.
+-
+-~~~powershell
+-py -3.12 --version
+-py -3.12 -m venv .venv
+-.\.venv\Scripts\python.exe -m pip install -r requirements.lock.txt
+-.\.venv\Scripts\python.exe -m pip check
+-.\.venv\Scripts\python.exe run_pipeline.py
+-.\.venv\Scripts\python.exe -m unittest discover -s tests -v
+-~~~
+-
+-`requirements.txt` pins the six direct dependencies; `requirements.lock.txt` also records the transitive versions used for the clean verification run. A conventional alternative is to install from `requirements.txt`.
+-
+-No environment activation is needed. `run_project.bat` is a convenience wrapper. It installs the direct requirements, runs the pipeline/tests and opens the HTML report. Initial dependency installation requires internet; calculations subsequently run locally.
+-
+-The pipeline rebuilds `data/raw/` and `outputs/` and overwrites the generated dashboard. Keep custom analysis outside those generated folders. The generated PDF requires Arial on Windows or DejaVu Sans on Linux. The pipeline was verified on Linux; the PowerShell commands are provided for Windows, not claimed as a Windows execution test.
+-
+-Linux equivalent:
+-
+-~~~bash
+-python3.12 -m venv .venv
+-.venv/bin/python -m pip install -r requirements.lock.txt
+-.venv/bin/python run_pipeline.py
+-.venv/bin/python -m unittest discover -s tests -v
+-~~~
+-
+-## Tests and independent dashboard checks
+-
+-The **26 Python tests** cover hand-calculated financial identities, monthly probability mass, maturity boundaries, Stage 3 exposure, 30/31/90 DPD cases, leakage guards, row counts and SQL/Python/audit reconciliation.
++```
+ 
+-After the pipeline, generate independent SQL references and check all **768 filter combinations**:
++The main queries are in:
+ 
+-~~~powershell
+-.\.venv\Scripts\python.exe tests/export_dashboard_cases.py
+-node tests/check_dashboard.cjs
+-~~~
++- `sql/01_curated_views.sql` — cleaning, deduplication and analytical views;
++- `sql/02_analysis.sql` — portfolio summaries, migrations and high-loss contracts;
++- `sql/03_validation.sql` — integrity and reconciliation checks.
+ 
+-Node.js 18+ is needed only for these JavaScript checks, not for viewing the dashboard. The Node check executes the actual dashboard script with a minimal DOM shim; it is not a browser layout test.
++## Baseline result
+ 
+-Optional real-browser test:
++For the default configuration and reporting date `2026-09-30`:
+ 
+-~~~powershell
+-npm ci
+-npx playwright install chromium
+-npm run test:browser
+-~~~
+-
+-This verifies browser-rendered totals and rankings against SQL, the CSV download, lack of external requests, and desktop/mobile layout. It also regenerates screenshots. If you already have Edge, you can use `$env:CREDIT_RISK_BROWSER_CHANNEL = "msedge"` before the last command instead of downloading Chromium.
+-
+-Release validation details and the actual browser used are recorded in [reports/VALIDATION_REPORT.md](reports/VALIDATION_REPORT.md). Python/SQL verification, deterministic generation and Node logic checks when Node is installed can be reproduced with:
+-
+-~~~powershell
+-.\.venv\Scripts\python.exe scripts/verify_project.py
+-~~~
+-
+-## Verified baseline results
+-
+-Reporting date **2026-09-30**, seed **42**, default configuration:
+-
+-| Measure | Verified result |
++| Measure | Result |
+ |---|---:|
+-| Contracts / contract-month rows | 6,000 / 72,000 |
++| Contracts | 6,000 |
++| Contract-month records | 72,000 |
+ | EAD | 240,431,995.01 PLN |
+-| Scenario-weighted ECL | **35,710,382.24 PLN** |
+-| Base / adverse ECL | 33,457,505.16 / 50,767,593.01 PLN |
+-| ECL / EAD | 14.8526% |
+-| Stage 1 / 2 / 3 contracts | 3,385 / 2,363 / 252 |
+-| Calibrated PD test ROC-AUC / Gini | 0.742585 / 0.485171 |
+-| PD test Brier / log loss | 0.063961 / 0.237756 |
+-| PD mean prediction / observed default rate | 7.3938% / 7.6750% |
+-| LGD test MAE / constant-mean baseline MAE | 0.054840 / 0.140825 |
+-
+-These are results on generated data, not estimates of real-world bank performance. AUC measures ranking, not the percentage of correctly classified customers; Brier is not a standalone calibration-only measure.
++| Scenario-weighted ECL | 35,710,382.24 PLN |
++| PD test ROC-AUC | 0.7426 |
++| LGD test MAE | 0.0548 |
+ 
+-![Filtered HTML dashboard](screenshots/dashboard-filtered.png)
++These values describe generated data only. They do not demonstrate performance on real borrowers.
+ 
+-## Limitations
++## Repository structure
+ 
+-- Synthetic outcomes follow a designed generator. Model performance cannot establish usefulness on real borrowers.
+-- The current performing-portfolio score PSI versus training is about **0.4167**, indicating a population difference requiring investigation.
+-- Monthly hazard is constant; lifetime PD curves are approximated rather than independently modelled.
+-- Scenario odds/LGD multipliers, weights, SICR thresholds and CCF are assumptions, not estimated macroeconomic relationships.
+-- Stages are fixed across scenarios; default and credit impairment are simplified.
+-- LGD uses resolved workouts without correcting for open-case selection bias or censoring.
+-- Stage 3 uses a modelled LGD proxy rather than an individually timed future recovery forecast.
+-- Cards use a fixed behavioural horizon; prepayment, cures, POCI and complex restructurings are omitted.
+-- Independent model validation, production controls and regulatory approval are outside scope.
++```text
++src/          Python modules
++sql/          SQL preparation, analysis and validation
++tests/        Python and dashboard checks
++data/sample/  small synthetic examples
++dashboard/    offline HTML dashboard
++docs/         methodology, dictionary, sources and Power BI guide
++reports/      saved verification outputs
++screenshots/  dashboard previews
++```
+ 
+-## Further development
+-
+-Investigate discrete-time survival models, macroeconomic term structures, censored/open-workout LGD, prepayment and cure behaviour, and a manually built Power BI report. These are potential extensions, not implemented features.
++## Limitations
+ 
+-## Repository guide
++- The dataset and outcomes are generated rather than observed.
++- PD lifetime curves, macroeconomic scenarios, SICR thresholds and CCF are simplified assumptions.
++- LGD is trained on resolved workouts and does not model censoring of open cases.
++- Stage 3 and behavioural life for revolving products are simplified.
++- There is no completed `.pbix` file and no production deployment or regulatory validation.
+ 
+-The complete [file tree](docs/FILE_TREE.md), [change list](docs/CHANGES.md), [manual GitHub publication guide](docs/GITHUB_PUBLISHING_PL.md), [Polish interview/CV material](docs/CAREER_GUIDE_PL.md), and [source references](docs/SOURCES.md) are included.
++## Development note
+ 
+-AI tools assisted with the initial implementation and documentation. The portfolio should be presented through code review, reproducible checks and explanations of its assumptions; it does not represent commercial banking experience.
++The implementation and documentation were developed with AI-assisted tooling as part of an educational portfolio project. The repository demonstrates a reproducible technical workflow, not commercial banking experience.
+ 
+-MIT licensed. No repository has been published automatically.
++MIT licensed.
+diff --git a/README_PL.md b/README_PL.md
+index ee496b6..0fd54ae 100644
+--- a/README_PL.md
++++ b/README_PL.md
+@@ -1,60 +1,74 @@
+ # Credit Risk Lab
+ 
+-[English README](README.md)
++[English version](README.md)
+ 
+-Projekt portfolio łączący **Python, SQL i analizę ryzyka kredytowego**. Przetwarza syntetyczne źródła, tworzy bazę SQLite, estymuje PD/LGD, liczy scenariuszowy ECL i pokazuje wynik w **dashboardzie HTML**.
++Projekt edukacyjny wykorzystujący **Python, SQL i SQLite** do przejścia przez uproszczony proces analizy ryzyka kredytowego na danych syntetycznych.
+ 
+-**Wszystkie dane są syntetyczne. Projekt jest edukacyjny, nie jest produkcyjnym modelem bankowym ani pełną implementacją MSSF 9. Nie powstał na zlecenie instytucji finansowej.**
++Projekt generuje fikcyjny portfel kredytów detalicznych, przygotowuje warstwę analityczną w SQLite, estymuje PD i LGD, oblicza scenariuszowo ważony ECL oraz prezentuje wyniki w lokalnym dashboardzie HTML.
+ 
+-![Dashboard HTML](screenshots/dashboard-overview.png)
++> Wszystkie rekordy są syntetyczne. Repozytorium nie jest produkcyjnym modelem bankowym, pełną implementacją MSSF 9 ani projektem wykonanym dla instytucji finansowej.
+ 
+-## Co zawiera
++![Podgląd dashboardu](screenshots/dashboard-overview.png)
+ 
+-- 6 000 fikcyjnych kontraktów i 12 miesięcy: **72 000 rekordów kontrakt–miesiąc**.
+-- SQL: JOIN, CTE, deduplikacja ROW_NUMBER, migracje z LAG, kontrole i uzgodnienia.
+-- PD: regresja logistyczna, osobna kalibracja i późniejszy test czasowy.
+-- LGD: model Ridge na zdyskontowanych odzyskach netto zakończonych windykacji.
+-- ECL: etapy 1/2/3, miesięczne PD marginalne, harmonogram EAD, dyskonto i trzy scenariusze.
+-- Testy Python, porównanie dashboardu z niezależnymi zapytaniami SQL i test przeglądarkowy.
++## Zakres
+ 
+-PD oznacza prawdopodobieństwo defaultu; LGD udział straty w razie defaultu; EAD ekspozycję w default; ECL oczekiwaną stratę. Wyjaśnienia i ograniczenia są w [metodologii](docs/METHODOLOGY.md).
++- 6 000 fikcyjnych umów i 12 miesięcznych dat raportowych;
++- 72 000 rekordów kontrakt–miesiąc po deduplikacji i kontroli jakości;
++- zapytania SQL do czyszczenia, łączenia i analizy danych;
++- moduły Python do generowania danych, modelowania PD/LGD i kalkulacji ECL;
++- dashboard HTML z filtrami daty, produktu, etapu i scenariusza;
++- testy automatyczne oraz porównanie wybranych wyników SQL i Pythona;
++- przykładowe pliki Power Query M i DAX do ręcznego zbudowania raportu Power BI.
+ 
+-## Obejrzyj i uruchom
++## Przebieg
+ 
+-Gotowy podgląd otworzysz przez `dashboard/index.html`. Działa offline, bez serwera.
++1. Wygenerowanie deterministycznych danych syntetycznych.
++2. Załadowanie danych do SQLite i sprawdzenie kluczy źródłowych.
++3. Usunięcie duplikatów i odrzucenie błędnych rekordów.
++4. Dopasowanie uproszczonych modeli PD oraz LGD na rozdzielonych okresach.
++5. Przypisanie etapów ryzyka i obliczenie ECL dla trzech scenariuszy.
++6. Eksport wyników i utworzenie dashboardu HTML.
+ 
+-W Windows zainstaluj Python 3.12, otwórz PowerShell w katalogu projektu i wykonaj:
++Opis założeń znajduje się w [metodologii](docs/METHODOLOGY.md), a struktura pól w [słowniku danych](docs/DATA_DICTIONARY.md).
+ 
+-~~~powershell
++## Uruchomienie w Windows
++
++W katalogu projektu otwórz PowerShell i wykonaj:
++
++```powershell
+ py -3.12 -m venv .venv
+ .\.venv\Scripts\python.exe -m pip install -r requirements.lock.txt
+ .\.venv\Scripts\python.exe run_pipeline.py
+ .\.venv\Scripts\python.exe -m unittest discover -s tests -v
+-~~~
++```
+ 
+-Proces odtworzy pełne dane i bazę w ignorowanych katalogach `data/raw/` i `outputs/` oraz odświeży HTML. Małe CSV do obejrzenia są w `data/sample/`. Nie służą do treningu.
++Gotowy podgląd działa bez instalacji: otwórz `dashboard/index.html` w przeglądarce. Małe przykładowe pliki znajdują się w `data/sample/`; pełne dane i baza są odtwarzane przez pipeline.
+ 
+-Pełna instrukcja instalacji, opcjonalne kontrole Node i test przeglądarkowy: [README EN](README.md#tests-and-independent-dashboard-checks).
++## Wynik bazowy
+ 
+-## Zweryfikowane wyniki bazowe
++Dla konfiguracji domyślnej i daty `2026-09-30`:
+ 
+ | Wskaźnik | Wynik |
+ |---|---:|
++| Liczba umów | 6 000 |
++| Rekordy kontrakt–miesiąc | 72 000 |
+ | EAD | 240 431 995,01 zł |
+-| ECL ważony scenariuszami | **35 710 382,24 zł** |
+-| Pokrycie EAD odpisem | 14,8526% |
+-| AUC / Gini PD na późniejszym teście | 0,742585 / 0,485171 |
+-| MAE LGD | 0,054840 |
++| ECL ważony scenariuszami | 35 710 382,24 zł |
++| ROC-AUC modelu PD | 0,7426 |
++| MAE modelu LGD | 0,0548 |
+ 
+-Dla wersji bazowej potwierdzono 26 testów Python i 768 kombinacji filtrów względem SQL. Szczegóły środowiska i testów: [raport weryfikacji](reports/VALIDATION_REPORT.md).
++Wyniki dotyczą wyłącznie wygenerowanych danych i nie potwierdzają skuteczności na rzeczywistym portfelu.
+ 
+-## Uczciwy zakres
++## Ograniczenia
+ 
+-Brak prawdziwych danych klientów, zastosowania komercyjnego i zatwierdzenia regulacyjnego. Scenariusze, SICR, CCF i stały hazard są uproszczeniami. PSI trening/portfel około 0,4167 wskazuje różnicę populacji wymagającą analizy. Dobra jakość wyniku na generatorze nie potwierdza skuteczności na rzeczywistych kredytach.
++- Dane oraz obserwowane wyniki spłat są syntetyczne.
++- Krzywe lifetime PD, scenariusze, progi SICR i CCF są uproszczonymi założeniami.
++- LGD bazuje na zakończonych przypadkach i nie modeluje otwartych windykacji.
++- Stage 3 oraz okres życia produktów odnawialnych zostały uproszczone.
++- Nie ma gotowego pliku `.pbix`, wdrożenia produkcyjnego ani walidacji regulacyjnej.
+ 
+-**Nie ma pliku PBIX.** Folder `powerbi/` zawiera M/DAX, a [POWER_BI_BUILD_GUIDE.md](docs/POWER_BI_BUILD_GUIDE.md) prowadzi przez samodzielne zbudowanie raportu. Nie zastosowano VBA, R ani SAS.
++## Informacja o wykonaniu
+ 
+-Instrukcja publikacji, opis repozytorium i topics: [GITHUB_PUBLISHING_PL.md](docs/GITHUB_PUBLISHING_PL.md).
+-Punkty do CV, 10 pytań i wypowiedź na rozmowę: [CAREER_GUIDE_PL.md](docs/CAREER_GUIDE_PL.md).
++Implementacja i dokumentacja powstały przy wsparciu narzędzi AI jako edukacyjny projekt portfolio. Repozytorium pokazuje odtwarzalny proces techniczny, a nie komercyjne doświadczenie bankowe.
+ 
+-Kod i dokumentacja były rozwijane z pomocą AI. Opisuj wyłącznie zakres, który potrafisz wyjaśnić i odtworzyć. Licencja MIT.
++Licencja MIT.
+diff --git a/docs/CAREER_GUIDE_PL.md b/docs/CAREER_GUIDE_PL.md
+deleted file mode 100644
+index 52fdeaf..0000000
+--- a/docs/CAREER_GUIDE_PL.md
++++ /dev/null
+@@ -1,61 +0,0 @@
+-# Projekt w CV i na rozmowie
+-
+-Materiał opisuje zakres projektu portfolio, a nie doświadczenie komercyjne. Użyj sformułowań po poznaniu kodu, uruchomieniu procesu i przejściu wyników. Nie deklaruj samodzielnego autorstwa nieprzejrzanego kodu ani ukończonego Power BI.
+-
+-## Trzy krótkie punkty do polskiego CV
+-
+-- Projekt portfolio SQL/Python: przetwarzanie syntetycznego portfela 6 000 umów i 72 000 rekordów kontrakt–miesiąc, kontrola jakości danych i analizy w SQLite.
+-- Analiza PD i LGD z walidacją czasową oraz scenariuszowa kalkulacja ECL uwzględniająca etapy ryzyka, harmonogram ekspozycji i dyskonto.
+-- Weryfikacja obliczeń przez 26 testów Python oraz dashboard HTML z wynikami zgodnymi z SQL dla 768 kombinacji filtrów.
+-
+-Nagłówek: **Credit Risk Lab — projekt portfolio | Python, SQL, analiza danych, ryzyko kredytowe**.
+-
+-W opisie umieść adres repozytorium dopiero po jego faktycznej publikacji. Nie wpisuj fikcyjnego stanowiska, pracodawcy ani komercyjnego wdrożenia.
+-
+-## Dziesięć pytań rekrutera i poprawne odpowiedzi
+-
+-### 1 Co jest problemem biznesowym projektu
+-
+-Oszacowanie oczekiwanej straty w portfelu i wyjaśnienie jej źródeł według produktu, etapu ryzyka oraz scenariusza. Dane są syntetyczne, więc wynik demonstruje proces analityczny, nie straty rzeczywistej instytucji.
+-
+-### 2 Czym różnią się PD LGD EAD i ECL
+-
+-PD to prawdopodobieństwo defaultu w danym okresie, LGD to udział straty pod warunkiem defaultu, EAD to ekspozycja w momencie tego zdarzenia. ECL łączy te elementy, uwzględniając czas i scenariusze. Prosty przykład bez dyskonta: 10 000 zł × 5% PD × 60% LGD = 300 zł.
+-
+-### 3 Dlaczego 72 000 wierszy nie oznacza 72 000 kredytów
+-
+-Ziarnistość wyniku to kontrakt i miesiąc. 6 000 kontraktów występuje na 12 datach raportowych. Sumy sald z różnych dat nie są bieżącym portfelem; karty i podsumowanie wymagają jednej daty.
+-
+-### 4 Jak SQL zapobiega zawyżeniu sum przez duplikaty
+-
+-Najpierw sprawdzana jest unikalność kluczy źródłowych przed JOIN. ROW_NUMBER wybiera najnowszą wersję snapshotu dla kontraktu i daty według ingestion_id. Nieprawidłowe rekordy trafiają do kwarantanny, a klucz kontrakt/data w warstwie wynikowej jest unikalny.
+-
+-### 5 Jak zabezpieczono projekt przed data leakage
+-
+-Predyktory mają jawną listę. Nie zawierają targetu, dat przyszłego defaultu i późniejszych odzysków. Imputacja oraz skala są dopasowane tylko na treningu, klienci nie przechodzą między kohortami, a okna wyników wcześniejszego zbioru kończą się przed obserwacjami kolejnego.
+-
+-### 6 Czym AUC różni się od kalibracji
+-
+-AUC mierzy porządkowanie ryzyka: czy przyszły default dostaje wyższy wynik niż brak defaultu. Kalibracja sprawdza, czy np. grupa z PD 10% ma około 10% defaultów. AUC 0,743 nie oznacza 74,3% poprawnych klasyfikacji. Brier nie jest wyłącznie miarą kalibracji.
+-
+-### 7 Jak wyznaczono LGD i jakie ma ograniczenie
+-
+-Cel to 1 minus zdyskontowane odzyski netto podzielone przez ekspozycję w default. Następnie Ridge przewiduje tę wartość z cech dostępnych w default. Użyto tylko zakończonych przypadków: brak korekty otwartych windykacji i cenzurowania może powodować bias.
+-
+-### 8 Jak etapy zmieniają odpis
+-
+-Stage 1 obejmuje default możliwy w ciągu maksymalnie 12 miesięcy; Stage 2 wydłuża horyzont do pozostałego życia po znaczącym wzroście ryzyka. Stage 3 oznacza już zidentyfikowany default i w projekcie używa proxy LGD. Progi SICR są założeniami demonstratora, a nie uniwersalnym wymogiem liczbowym standardu.
+-
+-### 9 Dlaczego rocznej PD nie mnożymy po prostu przez lata
+-
+-Trzeba uwzględnić przeżycie do kolejnego okresu. Przy stałej rocznej PD 12% prawdopodobieństwo defaultu przez dwa lata to 1−0,88²=22,56%, nie 24%. Silnik sumuje miesięczne prawdopodobieństwa marginalne z harmonogramem EAD i dyskontem.
+-
+-### 10 Jak sprawdziłeś wynik i czego jeszcze nie wdrożono
+-
+-Ręczne tożsamości finansowe są w testach, kwoty uzgodniono między SQL i Pythonem, a składniki miesięczne audytu sumują się do ECL wybranych kontraktów. Dashboard porównano z SQL dla 768 filtrów i sprawdzono w przeglądarce. Nie ma PBIX ani wdrożenia bankowego; scenariusze są założone, a wysoki PSI trening/portfel wymagałby dalszej analizy.
+-
+-## Wypowiedź na około minutę
+-
+-„Chciałbym pokazać mój projekt portfolio Credit Risk Lab, który łączy SQL, Pythona i analizę ryzyka kredytowego. Na syntetycznych danych obejmuje 6 tysięcy umów i 72 tysiące obserwacji miesięcznych. SQL odpowiada za łączenie źródeł, deduplikację, kontrolę jakości i analizy portfela. Python estymuje PD oraz LGD, a następnie liczy oczekiwaną stratę dla trzech scenariuszy i etapów ryzyka. W projekcie rozdzielone są okresy treningu, kalibracji i testu, żeby ograniczyć wyciek informacji z przyszłości. Wyniki można obejrzeć w dashboardzie HTML. Proces ma 26 testów, a wyniki filtrów są uzgodnione z SQL. Najważniejsze ograniczenia to syntetyczne dane, uproszczony hazard i założone scenariusze. Przy przygotowaniu bazowego kodu i dokumentacji korzystałem z AI. Projekt traktuję jako materiał do praktycznej nauki i pokazania, jak sprawdzam dane, obliczenia oraz ich założenia.”
+-
+-Przećwicz tekst własnymi słowami. Jeśli wykonasz własną zmianę, np. analizę wrażliwości CCF, opisz ją i pokaż rezultat. Nie dodawaj twierdzenia o takiej pracy, zanim jej nie wykonasz.
+diff --git a/docs/CHANGES.md b/docs/CHANGES.md
+deleted file mode 100644
+index 054921e..0000000
+--- a/docs/CHANGES.md
++++ /dev/null
+@@ -1,48 +0,0 @@
+-# Changes made for the public portfolio release
+-
+-This release starts from the selected existing Credit Risk Lab archive. It is not a replacement project.
+-
+-## Preserved
+-
+-- Original PD/LGD modelling, calibration and temporal validation code.
+-- Original financial ECL engine and deterministic synthetic generator.
+-- Original database loader and the two original SQL scripts.
+-- The 26 original financial/integration tests.
+-- Baseline configuration and scenario assumptions.
+-- The dashboard's original aggregation and top-loss selection logic.
+-
+-Core source hashes are compared with the input archive in the verification record. Numerical results are independently reproduced rather than copied from old statements.
+-
+-## Cleaned and reorganised
+-
+-- Removed institution-specific recruitment references and job-ad links.
+-- Removed the personal name from report metadata, report text and dashboard footer.
+-- Replaced time-sensitive application advice with general portfolio documentation.
+-- Created an English main README and a shorter Polish README.
+-- Moved the dashboard template to dashboard/template.html and the generated preview to dashboard/index.html; updated its checker and Windows launcher.
+-- Translated the dashboard presentation to English and used English numeric display formatting.
+-- Added a narrow-screen layout so long monetary cards do not overflow.
+-- Replaced the fixed example Power Query project path with a required SET_PROJECT_FOLDER placeholder.
+-- Added MIT licensing, a comprehensive .gitignore and optional locked browser-test dependencies.
+-
+-## Added
+-
+-- Small referentially consistent synthetic samples and their export script.
+-- Complete methodology, data dictionary, source references and manual Power BI guide.
+-- A standalone verification script, an extra SQL validation script and a real-browser checker.
+-- Real dashboard screenshots, measured verification results and reproducibility information.
+-- Manual publication commands, repository description/topics, truthful CV bullets and interview preparation.
+-
+-## Excluded from the public release
+-
+-- Full raw CSVs and the approximately 33 MB SQLite database.
+-- Large full fact-table exports and redundant copies of generated results.
+-- Personal recruitment notes and the old personalised PDF.
+-- Python environments/caches, Node dependencies, temporary downloads, build files and private audit paths.
+-- Any Git history, credentials, account configuration or fabricated PBIX file.
+-
+-The full dataset and analytical outputs are recreated by run_pipeline.py. The small public preview, sample and verification snapshots intentionally remain.
+-
+-## Unfinished scope
+-
+-No Power BI Desktop execution or PBIX exists. No production deployment, external validation or institution affiliation is claimed. GitHub publication remains a manual user action.
+diff --git a/docs/FILE_TREE.md b/docs/FILE_TREE.md
+deleted file mode 100644
+index 6fdbf00..0000000
+--- a/docs/FILE_TREE.md
++++ /dev/null
+@@ -1,78 +0,0 @@
+-# Repository file tree
+-
+-Generated data/raw and outputs folders are intentionally excluded from the public package.
+-
+-~~~text
+-credit-risk-lab/
+-  dashboard/
+-    index.html
+-    template.html
+-  data/
+-    sample/
+-      borrowers.csv
+-      fact_ecl_sample.csv
+-      historical_pd.csv
+-      loans.csv
+-      README.md
+-      recoveries.csv
+-      snapshots.csv
+-      workouts.csv
+-  docs/
+-    CAREER_GUIDE_PL.md
+-    CHANGES.md
+-    DATA_DICTIONARY.md
+-    FILE_TREE.md
+-    GITHUB_PUBLISHING_PL.md
+-    METHODOLOGY.md
+-    POWER_BI_BUILD_GUIDE.md
+-    PROVENANCE.json
+-    SOURCES.md
+-  powerbi/
+-    import_fact_ecl.m
+-    measures.dax
+-  reports/
+-    environment.txt
+-    metrics.json
+-    pipeline-log.txt
+-    python-tests.txt
+-    VALIDATION_REPORT.md
+-    verification.json
+-  screenshots/
+-    dashboard-filtered.png
+-    dashboard-mobile.png
+-    dashboard-overview.png
+-  scripts/
+-    export_samples.py
+-    verify_project.py
+-  sql/
+-    01_curated_views.sql
+-    02_analysis.sql
+-    03_validation.sql
+-  src/
+-    __init__.py
+-    database.py
+-    ecl.py
+-    io_utils.py
+-    models.py
+-    reporting.py
+-    synthetic.py
+-  tests/
+-    check_dashboard.cjs
+-    check_dashboard_browser.cjs
+-    export_dashboard_cases.py
+-    test_risk.py
+-  .gitattributes
+-  .gitignore
+-  config.json
+-  LICENSE
+-  package-lock.json
+-  package.json
+-  README.md
+-  README_PL.md
+-  requirements.lock.txt
+-  requirements.txt
+-  run_pipeline.py
+-  run_project.bat
+-~~~
+-
+-Full synthetic inputs, database and all analytical outputs are recreated with python run_pipeline.py.
+diff --git a/docs/GITHUB_PUBLISHING_PL.md b/docs/GITHUB_PUBLISHING_PL.md
+deleted file mode 100644
+index bf5977e..0000000
+--- a/docs/GITHUB_PUBLISHING_PL.md
++++ /dev/null
+@@ -1,65 +0,0 @@
+-# Ręczna publikacja repozytorium na GitHubie
+-
+-Repozytorium nie zostało automatycznie opublikowane. Poniższe czynności wykonujesz sam. Paczka nie zawiera historii Git ani sztucznych commitów.
+-
+-## Proponowany opis repozytorium
+-
+-Reproducible Python and SQL credit-risk analytics on synthetic data: PD/LGD modelling, scenario-weighted ECL, data-quality checks and an HTML dashboard.
+-
+-## Proponowane GitHub Topics
+-
+-python, sql, sqlite, data-analysis, credit-risk, risk-modeling, synthetic-data, data-quality, pd, lgd, ead, ecl, ifrs9, portfolio-project
+-
+-Nie dodawaj topics sugerujących ukończone Power BI, VBA, R lub SAS.
+-
+-## Przygotuj narzędzia i repozytorium
+-
+-1. Zainstaluj Git i otwórz terminal w katalogu **credit-risk-lab**.
+-2. Na GitHubie wybierz New repository i nazwę **credit-risk-lab**.
+-3. Wklej opis i wybierz Public.
+-4. Utwórz **puste** repozytorium: nie dodawaj tam kolejnego README, licencji ani .gitignore. Te pliki są już w paczce.
+-5. Zastąp **YOUR_USERNAME** w adresie poniżej swoim loginem. To jedyny placeholder w komendzie adresu.
+-
+-## Utwórz prawdziwy pierwszy commit
+-
+-~~~powershell
+-git --version
+-git init -b main
+-git add .
+-git status --short
+-git diff --cached --stat
+-~~~
+-
+-Sprawdź przygotowany zestaw plików. Pełne dane, outputs, baza, środowisko Python i node_modules powinny być ignorowane. README, dokumentacja, małe próbki, dashboard, zrzuty i kod powinny zostać dodane.
+-
+-Jeżeli Git prosi o tożsamość autora, skonfiguruj ją zgodnie ze swoim profilem. Nie dołączaj plików z ustawieniami konta ani poświadczeniami do projektu.
+-
+-Proponowana treść rzeczywistego pierwszego commita:
+-
+-~~~text
+-Add reproducible SQL and Python credit-risk portfolio project
+-~~~
+-
+-Wykonaj:
+-
+-~~~powershell
+-git commit -m "Add reproducible SQL and Python credit-risk portfolio project"
+-git remote add origin https://github.com/YOUR_USERNAME/credit-risk-lab.git
+-git remote -v
+-git push -u origin main
+-~~~
+-
+-Uwierzytelnianie obsłuż przez zwykły mechanizm Git/GitHub, bez wstawiania tokenów do adresu repozytorium lub plików projektu.
+-
+-## Po wysłaniu
+-
+-1. Sprawdź, czy główna strona pokazuje angielski README i obraz dashboardu.
+-2. Otwórz README_PL i odnośniki do dokumentacji.
+-3. Ustaw Topics w sekcji About.
+-4. Sprawdź widoczność repozytorium bez zalogowania.
+-5. Dashboard HTML nie uruchamia się jako aplikacja wewnątrz podglądu kodu GitHuba. Rekruter może pobrać repozytorium i otworzyć dashboard/index.html. Zrzuty są widoczne bez pobierania.
+-6. Opcjonalne GitHub Pages jest osobnym przyszłym krokiem; nie jest skonfigurowane ani wdrożone w tej paczce.
+-
+-Nie trzeba tworzyć kilku commitów udających wcześniejszą pracę. Kolejne commity powinny odpowiadać rzeczywistym poprawkom.
+-
+-Źródło komend: [GitHub Docs](https://docs.github.com/en/migrations/importing-source-code/using-the-command-line-to-import-source-code/adding-locally-hosted-code-to-github).
+diff --git a/docs/METHODOLOGY.md b/docs/METHODOLOGY.md
+index 385c15f..fab14cf 100644
+--- a/docs/METHODOLOGY.md
++++ b/docs/METHODOLOGY.md
+@@ -109,4 +109,4 @@ The baseline CCF sensitivity raises weighted ECL by about 306,116.14 PLN. All re
+ 
+ ## Baseline verification policy
+ 
+-The verification script deliberately freezes the default dataset, financial totals and preserved source hashes. Intentional model or generator changes require a fresh review and explicit baseline/provenance update; they should not be presented as the unchanged validated release.
++The verification script freezes the default dataset, financial totals and reference source hashes. Intentional model or generator changes require a fresh review and an updated baseline.
+diff --git a/docs/PROVENANCE.json b/docs/PROVENANCE.json
+index 1bad7e4..652b69b 100644
+--- a/docs/PROVENANCE.json
++++ b/docs/PROVENANCE.json
+@@ -1,7 +1,5 @@
+ {
+-  "source_archive": "Credit_Risk_Lab.zip",
+-  "source_archive_sha256": "20b6c05ab44e273d030b8dea14d4cada5236544647301a2168fbb11b70f121c0",
+-  "scope": "Public portfolio packaging of the selected existing project; no commercial affiliation.",
++  "scope": "Reference hashes for the validated numerical and SQL baseline.",
+   "original_core_sha256": {
+     "src/models.py": "c0957cce7e768bf8b3433d6308c35e1fe473a828e5bcafe5283f3ce9826c348c",
+     "src/ecl.py": "83debebcb206dcbd2ac7939f0cc779aa458e82e01f1070a40972c0754ef06e88",
+@@ -11,4 +9,4 @@
+     "sql/01_curated_views.sql": "09e70a9ea49080a5bc99d81463c198b1e0845b2a74a10e75ea71612ae907ad2a",
+     "sql/02_analysis.sql": "ff2e44ebddda69fd20afba0cd69038d96001af29dbeaf69970b4c94b529c7f9d"
+   }
+-}
+\ No newline at end of file
++}
+diff --git a/docs/SOURCES.md b/docs/SOURCES.md
+index 73541de..47c4524 100644
+--- a/docs/SOURCES.md
++++ b/docs/SOURCES.md
+@@ -8,6 +8,4 @@ The implementation uses synthetic data rather than a downloaded borrower dataset
+ - [Python 3.12 on Windows](https://docs.python.org/3.12/using/windows.html): launcher, installation and environments.
+ - [Power BI Desktop](https://learn.microsoft.com/en-us/power-bi/fundamentals/desktop-get-the-desktop) and [Csv.Document](https://learn.microsoft.com/en-us/powerquery-m/csv-document): manual report creation and CSV import.
+ - [Playwright browser installation](https://playwright.dev/docs/browsers): optional browser testing.
+-- [GitHub — adding locally hosted code](https://docs.github.com/en/migrations/importing-source-code/using-the-command-line-to-import-source-code/adding-locally-hosted-code-to-github): manual publication commands.
+-
+-Original implementation and documentation were developed with AI assistance. This cleaned release preserves the original numerical modelling code. The release validation report documents executed checks and limitations.
++The implementation and documentation were developed with AI-assisted tooling. Numerical results in the repository are generated from synthetic data and can be reproduced with the included scripts. The validation report records the tested environment, checks and known limitations.
+diff --git a/reports/VALIDATION_REPORT.md b/reports/VALIDATION_REPORT.md
+index d00c74d..9a576c2 100644
+--- a/reports/VALIDATION_REPORT.md
++++ b/reports/VALIDATION_REPORT.md
+@@ -1,80 +1,60 @@
+-# Verification report
++# Validation report
+ 
+-Verified on 2026-10-17 from the selected existing archive and a clean Python virtual environment. This report describes executed checks, not a plan.
++This file records the checks completed for the current baseline of Credit Risk Lab.
+ 
+-## Input inventory and protection
++## Environment
+ 
+-The selected archive contained 59 files and about 66.26 MB unpacked: source code, two SQL scripts, tests, six synthetic source extracts, a SQLite database, model/evaluation exports, HTML, charts, PDF and Polish documentation. An independent hash-checked backup was made before changes. The original archive was not modified. The alternative project was not used.
++- Python 3.12.14 on Linux x86_64
++- clean virtual environment without system site packages
++- dependencies installed from `requirements.lock.txt`
++- SQLite integrity check: OK
+ 
+-The original unpacked copy passed 26 Python tests and 768 Node/SQL filter checks. Its SQLite integrity was OK, with 72,000 fact rows and 12 dates. Those results were then regenerated rather than trusted as final evidence.
++The Windows commands in the README were prepared for Python 3.12 but were not executed as part of this validation. Power BI Desktop was not tested and the repository does not contain a `.pbix` file.
+ 
+-## Clean Python environment
+-
+-Python 3.12.14, Linux x86_64. A new venv was created without system site-packages; dependencies were downloaded and installed from the original pinned direct requirements. The installed transitive versions were recorded in requirements.lock.txt. pip check reported no broken requirements. The exact environment is in environment.txt.
+-
+-A fresh run started without full raw data or outputs, generated six source CSVs, built the SQL layers/database, fitted the models and calculated every reporting snapshot. The source generator was then run again with seed 42: all six CSV SHA-256 values matched exactly. Timestamps/PDF metadata are not claimed to be byte-identical.
+-
+-## Executed checks
++## Checks
+ 
+ | Check | Result |
+ |---|---|
+-| Full pipeline | PASS; source generation through dashboard and PDF |
+-| Python financial/integration tests | 26 passed |
+-| SQLite integrity_check | OK |
+-| Fact population | 72,000 rows, 12 dates, 6,000 loans |
+-| Source quality | 72,012 raw - 8 duplicate - 4 rejected = 72,000 accepted |
+-| SQL/Python latest EAD and ECL | Agree within 0.000001 PLN |
+-| Six loan-level ECL audits | Agree with monthly/scenario component sums |
+-| Node/SQL dashboard logic | All 768 combinations passed |
+-| Actual Chromium dashboard | All 768 combinations passed, including top-ten rankings |
+-| CSV download | PASS |
+-| JavaScript exceptions / external requests | 0 / 0 |
+-| Desktop / mobile | 1440x1050 and 390x844; no horizontal page overflow |
+-| Deterministic generator | All six raw CSV hashes reproduced |
+-| Original numeric and SQL code | Five Python modules and two original SQL scripts unchanged |
++| Full pipeline | PASS |
++| Python financial and integration tests | 26 passed |
++| Fact table | 72,000 rows, 12 dates and 6,000 contracts |
++| Source reconciliation | 72,012 input rows − 8 duplicates − 4 rejected = 72,000 accepted |
++| SQL and Python EAD/ECL totals | difference below 0.000001 PLN |
++| Selected loan-level ECL audits | component sums matched |
++| Dashboard logic against SQL references | 768 filter combinations matched |
++| Browser-rendered dashboard | 768 filter combinations matched |
++| JavaScript errors and external requests | 0 / 0 |
++| Deterministic generator | all six source CSV hashes reproduced |
+ 
+-The real browser was Chromium 153.0.8010.0 with Playwright 1.62.1. It opened the actual HTML using file://, without a server or account. Screenshots are genuine browser captures. The default Playwright browser download returned a broken archive; a separate Chromium binary was installed from a published package and used only for verification. That binary and its dependencies are not included in the repository.
++## Baseline output
+ 
+-## Actual baseline results
++Reporting date: `2026-09-30`
+ 
+ | Measure | Result |
+ |---|---:|
+-| Reporting date | 2026-09-30 |
+-| EAD | 240,431,995.01346758 PLN |
+-| Weighted ECL, Python | 35,710,382.24321605 PLN |
+-| Weighted ECL, SQL | 35,710,382.24321606 PLN |
+-| Weighted ECL rounded | **35,710,382.24 PLN** |
+-| Coverage | 14.8525916% |
++| EAD | 240,431,995.01 PLN |
++| Scenario-weighted ECL | 35,710,382.24 PLN |
++| ECL / EAD | 14.8526% |
+ | Stage 1 / 2 / 3 contracts | 3,385 / 2,363 / 252 |
+-| PD test AUC / Gini | 0.7425854531 / 0.4851709061 |
+-| PD Brier / log loss | 0.0639609900 / 0.2377561454 |
+-| PD mean / observed defaults | 7.393839% / 7.675000% |
+-| LGD MAE / mean baseline MAE | 0.0548399373 / 0.1408252006 |
+-
+-The earlier ECL, test count and filter-count claims were confirmed; no numerical correction was necessary. Presentation, structure and documentation were cleaned.
+-
+-## Limits of verification and unfinished work
+-
+-The Python execution was Linux-only. Windows instructions are supplied but not claimed as a Windows runtime test. Power BI Desktop/M/DAX was not run: there is no PBIX. Browser checks cover this dashboard and reference dataset, not every browser version. No GitHub publication or GitHub account operation was performed.
+-
+-Financial limitations remain: synthetic outcomes, constant hazard, assumed scenario/CCF/SICR parameters, fixed stages across scenarios, resolved-only LGD, simplified card life and Stage 3 proxy. Current-performing score PSI versus training is about 0.4167. These points prevent a production-validity claim.
+-
+-## Recruiter readiness
+-
+-**Suitable to show as an educational portfolio**, with the stated synthetic-data and model limitations. It demonstrates executable SQL/Python work and a working HTML report. It does not establish commercial experience, regulatory compliance or readiness for real lending/financial reporting decisions. The presenter should understand the code and be able to reproduce and explain a calculation.
+-
+-## Reproduce
++| PD test ROC-AUC | 0.742585 |
++| PD test Brier score | 0.063961 |
++| LGD test MAE | 0.054840 |
+ 
+-Run the Windows/Linux README installation, then:
++## Reproduce the checks
+ 
+-~~~powershell
+-python scripts/verify_project.py
+-~~~
++After installing the Python dependencies and running the pipeline:
+ 
+-For the real-browser check, install the optional package.json dependencies and Chromium (or select Edge), then use --browser. Node is optional for the financial pipeline. Running verification regenerates full data in ignored folders; do not add those to Git. Machine-readable evidence is in verification.json, metrics.json and the test/pipeline logs.
++```powershell
++.\.venv\Scripts\python.exe scripts/verify_project.py
++```
+ 
+-## Release packaging checks
++Optional dashboard checks require Node.js. The browser check additionally requires Playwright and Chromium or Microsoft Edge.
+ 
+-The candidate public ZIP was extracted into another empty directory and verified again: full generation, SQL/database build, deterministic raw CSVs, models, 26 Python tests, 768 Node logic cases and 768 real-browser cases all passed. Optional Node dependencies were also installed with npm ci and the browser test passed against that installation.
++## Known limitations
+ 
+-Text pattern scanning and manual review found no target-institution references, personal name, private workspace/user paths or common credential-key patterns in public files. This is a scoped release review, not a guarantee against every possible secret format. The public package excludes full raw data, the database, environments, caches, Node modules and temporary files. No PBIX or Git history is included.
++- All inputs and outcomes are synthetic.
++- Monthly hazard, scenarios, CCF values and SICR thresholds are assumptions.
++- LGD uses resolved workouts and does not correct for censoring of open cases.
++- Stage 3 and revolving-product life are simplified.
++- Current-performing score PSI versus training is approximately 0.4167 and would require investigation in a real modelling process.
++- The project has not undergone independent model validation or regulatory review.
+diff --git a/reports/pipeline-log.txt b/reports/pipeline-log.txt
+index 024f47f..1afd81b 100644
+--- a/reports/pipeline-log.txt
++++ b/reports/pipeline-log.txt
+@@ -2,6 +2,6 @@
+ 2/6 SQL deduplication, data quality and feature joins
+ 3/6 Train and independently evaluate PD/LGD
+ 4/6 Monthly scenario-weighted expected credit losses
+-5/6 Offline dashboard, charts and recruiter report
++5/6 Offline dashboard, charts and PDF summary
+ 6/6 Reproducibility manifest
+ DONE | loans=6,000 | ECL=35,710,382.24 PLN | AUC=0.743
+diff --git a/run_pipeline.py b/run_pipeline.py
+index 9c91aa9..5a45908 100644
+--- a/run_pipeline.py
++++ b/run_pipeline.py
+@@ -111,7 +111,7 @@ def run(root, config_path=None):
+         conn.commit()
+         conn.close()
+         os.replace(output / ".credit_risk.build.sqlite",output / "credit_risk.sqlite")
+-        print("5/6 Offline dashboard, charts and recruiter report",flush=True)
++        print("5/6 Offline dashboard, charts and PDF summary",flush=True)
+         from src.reporting import create_reports
+         create_reports(root,fact,latest,summary)
+         print("6/6 Reproducibility manifest",flush=True)
+diff --git a/src/reporting.py b/src/reporting.py
+index b1c6b60..a5df969 100644
+--- a/src/reporting.py
++++ b/src/reporting.py
+@@ -96,7 +96,7 @@ def register_fonts():
+ 
+ def pdf_report(output, latest, summary):
+     register_fonts()
+-    path = output / "recruiter_brief.pdf"
++    path = output / "credit_risk_summary.pdf"
+     c = canvas.Canvas(str(path),pagesize=(595.28,841.89))
+     c.setTitle("Credit Risk Lab - projekt portfolio do analizy ryzyka kredytowego")
+     c.setAuthor("Credit Risk Lab contributors")
